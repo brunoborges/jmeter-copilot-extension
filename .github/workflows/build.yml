@@ -29,7 +29,7 @@ jobs:
         mvn install -DskipTests -q
 
     - name: Build with Maven
-      run: mvn -B clean verify --file pom.xml
+      run: xvfb-run --auto-servernum mvn -B clean verify --file pom.xml
 
     - name: Upload artifact
       uses: actions/upload-artifact@v6
