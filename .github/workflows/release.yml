@@ -49,14 +49,21 @@ jobs:
     - name: Perform Release
       run: |
         mvn -B release:perform \
+          -Dgoals="verify" \
           -Darguments="-DskipTests"
 
     - name: Get artifact path
       id: artifact
       run: |
-        ARTIFACT_PATH=$(find target/checkout/target -name "jmeter-copilot-plugin-${{ inputs.releaseVersion }}.jar" -type f | head -1)
+        ARTIFACT_PATH=$(find target/checkout/target -name "jmeter-copilot-plugin-${{ inputs.releaseVersion }}.jar" -type f ! -name "*-sources.jar" ! -name "*-javadoc.jar" | head -1)
         echo "path=$ARTIFACT_PATH" >> $GITHUB_OUTPUT
         echo "name=jmeter-copilot-plugin-${{ inputs.releaseVersion }}.jar" >> $GITHUB_OUTPUT
+        if [ -z "$ARTIFACT_PATH" ]; then
+          echo "ERROR: Could not find artifact JAR"
+          find target/checkout/target -name "*.jar" -type f
+          exit 1
+        fi
+        echo "Found artifact: $ARTIFACT_PATH"
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
