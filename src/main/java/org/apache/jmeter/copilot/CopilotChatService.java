@@ -81,6 +81,17 @@ public class CopilotChatService implements AutoCloseable {
     private Consumer<String> streamingHandler;
     private Consumer<ChatMessage> messageHandler;
     private Closeable eventSubscription;
+    private String model = "claude-sonnet-4"; // Default model
+
+    /**
+     * Available AI models for the Copilot service.
+     */
+    public static final String[] AVAILABLE_MODELS = {
+        "claude-sonnet-4",
+        "gpt-4.1",
+        "claude-4-opus",
+        "gpt-4.1-mini"
+    };
 
     /**
      * Creates a new CopilotChatService with the default CopilotClient.
@@ -116,11 +127,31 @@ public class CopilotChatService implements AutoCloseable {
     private CompletableFuture<CopilotSession> createSession() {
         SessionConfig config = new SessionConfig()
             .setStreaming(true)
+            .setModel(model)
             .setSystemMessage(new com.github.copilot.sdk.json.SystemMessageConfig()
                 .setMode(com.github.copilot.sdk.SystemMessageMode.APPEND)
                 .setContent(JMETER_SYSTEM_PROMPT));
 
         return client.createSession(config);
+    }
+
+    /**
+     * Sets the AI model to use for the session.
+     * Must be called before connect() to take effect.
+     *
+     * @param model The model name (e.g., "claude-sonnet-4", "gpt-4.1")
+     */
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    /**
+     * Returns the currently configured AI model.
+     *
+     * @return The model name
+     */
+    public String getModel() {
+        return model;
     }
 
     private void subscribeToEvents() {

@@ -210,4 +210,27 @@ class CopilotChatServiceTest {
         assertThat(history).isNotNull();
         assertThat(history.size()).isZero();
     }
+
+    @Test
+    @DisplayName("should have default model set")
+    void shouldHaveDefaultModelSet() {
+        assertThat(service.getModel()).isEqualTo("claude-sonnet-4");
+    }
+
+    @Test
+    @DisplayName("should allow setting custom model")
+    void shouldAllowSettingCustomModel() {
+        service.setModel("gpt-4.1");
+
+        assertThat(service.getModel()).isEqualTo("gpt-4.1");
+    }
+
+    @Test
+    @DisplayName("should provide list of available models")
+    void shouldProvideListOfAvailableModels() {
+        assertThat(CopilotChatService.AVAILABLE_MODELS)
+            .isNotNull()
+            .isNotEmpty()
+            .contains("claude-sonnet-4", "gpt-4.1", "claude-4-opus", "gpt-4.1-mini");
+    }
 }

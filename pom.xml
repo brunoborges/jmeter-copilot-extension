@@ -13,9 +13,9 @@
     <description>JMeter plugin that integrates GitHub Copilot Chat for generating test plans</description>
 
     <scm>
-        <connection>scm:git:https://github.com/brunoborges/jmeter-copilot.git</connection>
-        <developerConnection>scm:git:https://github.com/brunoborges/jmeter-copilot.git</developerConnection>
-        <url>https://github.com/brunoborges/jmeter-copilot</url>
+        <connection>scm:git:https://github.com/brunoborges/jmeter-copilot-extension.git</connection>
+        <developerConnection>scm:git:https://github.com/brunoborges/jmeter-copilot-extension.git</developerConnection>
+        <url>https://github.com/brunoborges/jmeter-copilot-extension</url>
         <tag>HEAD</tag>
     </scm>
 

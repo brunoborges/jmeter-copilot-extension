@@ -1,9 +1,9 @@
 # Apache JMeter Copilot Chat Plugin
 
-[![Build](https://github.com/brunoborges/jmeter-copilot-chat/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/brunoborges/jmeter-copilot-chat/actions/workflows/build.yml)
+[![Build](https://github.com/brunoborges/jmeter-copilot-extension/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/brunoborges/jmeter-copilot-extension/actions/workflows/build.yml)
 [![Java 17+](https://img.shields.io/badge/Java-17%2B-blue?logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Apache JMeter](https://img.shields.io/badge/JMeter-5.6.3%2B-green?logo=apache&logoColor=white)](https://jmeter.apache.org/)
-[![License: MIT](https://img.shields.io/github/license/brunoborges/jmeter-copilot)](https://github.com/brunoborges/jmeter-copilot/blob/main/LICENSE)
+[![License: MIT](https://img.shields.io/github/license/brunoborges/jmeter-copilot-extension)](https://github.com/brunoborges/jmeter-copilot-extension/blob/main/LICENSE)
 
 An Apache JMeter plugin that provides a GitHub Copilot Chat experience for generating JMeter test plans through natural language conversation.
 
@@ -32,13 +32,13 @@ Download the latest release and install it to your JMeter installation with a si
 Using `JMETER_HOME` environment variable:
 
 ```bash
-curl -sL $(curl -s https://api.github.com/repos/brunoborges/jmeter-copilot/releases/latest | grep "browser_download_url.*jar" | cut -d '"' -f 4) -o $JMETER_HOME/lib/ext/jmeter-copilot-plugin.jar
+curl -sL $(curl -s https://api.github.com/repos/brunoborges/jmeter-copilot-extension/releases/latest | grep "browser_download_url.*jar" | cut -d '"' -f 4) -o $JMETER_HOME/lib/ext/jmeter-copilot-plugin.jar
 ```
 
 Or specify the JMeter path directly:
 
 ```bash
-curl -sL $(curl -s https://api.github.com/repos/brunoborges/jmeter-copilot/releases/latest | grep "browser_download_url.*jar" | cut -d '"' -f 4) -o /path/to/jmeter/lib/ext/jmeter-copilot-plugin.jar
+curl -sL $(curl -s https://api.github.com/repos/brunoborges/jmeter-copilot-extension/releases/latest | grep "browser_download_url.*jar" | cut -d '"' -f 4) -o /path/to/jmeter/lib/ext/jmeter-copilot-plugin.jar
 ```
 
 #### Windows (PowerShell)
@@ -46,7 +46,7 @@ curl -sL $(curl -s https://api.github.com/repos/brunoborges/jmeter-copilot/relea
 Using `JMETER_HOME` environment variable:
 
 ```powershell
-$release = Invoke-RestMethod -Uri "https://api.github.com/repos/brunoborges/jmeter-copilot/releases/latest"
+$release = Invoke-RestMethod -Uri "https://api.github.com/repos/brunoborges/jmeter-copilot-extension/releases/latest"
 $jarUrl = ($release.assets | Where-Object { $_.name -like "*.jar" }).browser_download_url
 Invoke-WebRequest -Uri $jarUrl -OutFile "$env:JMETER_HOME\lib\ext\jmeter-copilot-plugin.jar"
 ```
@@ -54,14 +54,14 @@ Invoke-WebRequest -Uri $jarUrl -OutFile "$env:JMETER_HOME\lib\ext\jmeter-copilot
 Or specify the JMeter path directly:
 
 ```powershell
-$release = Invoke-RestMethod -Uri "https://api.github.com/repos/brunoborges/jmeter-copilot/releases/latest"
+$release = Invoke-RestMethod -Uri "https://api.github.com/repos/brunoborges/jmeter-copilot-extension/releases/latest"
 $jarUrl = ($release.assets | Where-Object { $_.name -like "*.jar" }).browser_download_url
 Invoke-WebRequest -Uri $jarUrl -OutFile "C:\path\to\jmeter\lib\ext\jmeter-copilot-plugin.jar"
 ```
 
 ### Manual Installation
 
-1. Download the latest JAR from [GitHub Releases](https://github.com/brunoborges/jmeter-copilot/releases/latest)
+1. Download the latest JAR from [GitHub Releases](https://github.com/brunoborges/jmeter-copilot-extension/releases/latest)
 2. Copy the JAR file to your JMeter `lib/ext` directory
 3. Restart JMeter
 
@@ -118,7 +118,7 @@ mvn install -Pinstall-to-jmeter -Djmeter.home=/path/to/jmeter
 
 The plugin supports multiple AI models through the Copilot SDK:
 
-- `claude-sonnet-4.5` (default)
+- `claude-sonnet-4` (default)
 - `gpt-4.1`
 - `claude-4-opus`
 - `gpt-4.1-mini`

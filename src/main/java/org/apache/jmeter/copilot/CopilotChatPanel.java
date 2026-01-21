@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -79,6 +80,7 @@ public class CopilotChatPanel extends JPanel {
     private JButton showXmlButton;
     private JLabel statusLabel;
     private JScrollPane messagesScrollPane;
+    private JComboBox<String> modelSelector;
 
     // State
     private final AtomicBoolean isProcessing = new AtomicBoolean(false);
@@ -141,6 +143,23 @@ public class CopilotChatPanel extends JPanel {
         JLabel titleLabel = new JLabel("Copilot Chat");
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 16f));
         panel.add(titleLabel, BorderLayout.WEST);
+
+        // Center panel with model selector
+        JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JLabel modelLabel = new JLabel("Model:");
+        centerPanel.add(modelLabel);
+
+        modelSelector = new JComboBox<>(CopilotChatService.AVAILABLE_MODELS);
+        modelSelector.setSelectedItem(chatService.getModel());
+        modelSelector.setToolTipText("Select AI model");
+        modelSelector.addActionListener(e -> {
+            String selectedModel = (String) modelSelector.getSelectedItem();
+            if (selectedModel != null) {
+                chatService.setModel(selectedModel);
+            }
+        });
+        centerPanel.add(modelSelector);
+        panel.add(centerPanel, BorderLayout.CENTER);
 
         // Status and buttons
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
