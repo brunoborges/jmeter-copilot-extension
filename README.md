@@ -1,12 +1,16 @@
-# JMeter Copilot Plugin
+# Apache JMeter Copilot Chat Plugin
 
 [![Build](https://github.com/brunoborges/jmeter-copilot-chat/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/brunoborges/jmeter-copilot-chat/actions/workflows/build.yml)
+[![Java 17+](https://img.shields.io/badge/Java-17%2B-blue?logo=openjdk&logoColor=white)](https://openjdk.org/)
+[![Apache JMeter](https://img.shields.io/badge/JMeter-5.6.3%2B-green?logo=apache&logoColor=white)](https://jmeter.apache.org/)
+[![License: MIT](https://img.shields.io/github/license/brunoborges/jmeter-copilot)](https://github.com/brunoborges/jmeter-copilot/blob/main/LICENSE)
 
 An Apache JMeter plugin that provides a GitHub Copilot Chat experience for generating JMeter test plans through natural language conversation.
 
 ## Features
 
 - 🤖 **AI-Powered Test Generation**: Describe your tests in natural language and let Copilot generate the appropriate JMeter elements
+- 🛠️ **Execute Test Cases Directly**: Run tests within JMeter without defining test plans
 - 💬 **Chat Interface**: Interactive chat panel integrated directly into JMeter
 - 🔧 **Multiple Element Types**: Generate HTTP requests, thread groups, assertions, timers, controllers, and more
 - 🔄 **Seamless Integration**: Generated elements are automatically added to your test plan
@@ -16,22 +20,43 @@ An Apache JMeter plugin that provides a GitHub Copilot Chat experience for gener
 - Java 17 or later
 - Apache JMeter 5.6.3 or later
 - GitHub Copilot CLI installed and authenticated
-- [Copilot SDK for Java](https://github.com/brunoborges/copilot-sdk/tree/main/java) (version 0.1.0)
 
 ## Installation
 
 ### Quick Install (Recommended)
 
-Download the latest release and install it to your JMeter installation with a single command (`JMETER_HOME` should point to your JMeter installation):
+Download the latest release and install it to your JMeter installation with a single command.
+
+#### Linux/macOS
+
+Using `JMETER_HOME` environment variable:
 
 ```bash
 curl -sL $(curl -s https://api.github.com/repos/brunoborges/jmeter-copilot/releases/latest | grep "browser_download_url.*jar" | cut -d '"' -f 4) -o $JMETER_HOME/lib/ext/jmeter-copilot-plugin.jar
 ```
 
-Or, if you prefer to specify the JMeter path directly:
+Or specify the JMeter path directly:
 
 ```bash
 curl -sL $(curl -s https://api.github.com/repos/brunoborges/jmeter-copilot/releases/latest | grep "browser_download_url.*jar" | cut -d '"' -f 4) -o /path/to/jmeter/lib/ext/jmeter-copilot-plugin.jar
+```
+
+#### Windows (PowerShell)
+
+Using `JMETER_HOME` environment variable:
+
+```powershell
+$release = Invoke-RestMethod -Uri "https://api.github.com/repos/brunoborges/jmeter-copilot/releases/latest"
+$jarUrl = ($release.assets | Where-Object { $_.name -like "*.jar" }).browser_download_url
+Invoke-WebRequest -Uri $jarUrl -OutFile "$env:JMETER_HOME\lib\ext\jmeter-copilot-plugin.jar"
+```
+
+Or specify the JMeter path directly:
+
+```powershell
+$release = Invoke-RestMethod -Uri "https://api.github.com/repos/brunoborges/jmeter-copilot/releases/latest"
+$jarUrl = ($release.assets | Where-Object { $_.name -like "*.jar" }).browser_download_url
+Invoke-WebRequest -Uri $jarUrl -OutFile "C:\path\to\jmeter\lib\ext\jmeter-copilot-plugin.jar"
 ```
 
 ### Manual Installation
@@ -86,38 +111,6 @@ mvn install -Pinstall-to-jmeter -Djmeter.home=/path/to/jmeter
 - "Create a load test for a REST API with POST requests to /api/login"
 - "Add response assertions to verify status code 200"
 - "Create a cookie manager and header manager for API authentication"
-
-## Supported JMeter Elements
-
-| Category | Elements |
-|----------|----------|
-| Samplers | HTTP Request |
-| Thread Groups | Thread Group |
-| Assertions | Response Assertion |
-| Timers | Constant Timer, Random Timer |
-| Config Elements | HTTP Header Manager, HTTP Cookie Manager |
-| Controllers | Loop Controller, If Controller, Transaction Controller |
-| Listeners | View Results Tree, Summary Report, Aggregate Report |
-
-## Architecture
-
-```
-jmeter-copilot-plugin/
-├── src/main/java/org/apache/jmeter/plugins/copilot/
-│   ├── CopilotChatVisualizer.java    # Main JMeter visualizer/GUI component
-│   ├── CopilotChatTestElement.java   # Test element for storing configuration
-│   ├── JMeterTestPlanIntegrator.java # Integrates generated tests into JMeter
-│   ├── gui/
-│   │   └── CopilotChatPanel.java     # Swing chat panel UI
-│   ├── service/
-│   │   └── CopilotService.java       # Copilot SDK integration
-│   └── tools/
-│       └── JMeterTestGeneratorTool.java # Generates JMeter XML elements
-└── src/main/resources/
-    ├── META-INF/services/             # JMeter plugin service registration
-    └── org/apache/jmeter/plugins/copilot/
-        └── CopilotChatResources.properties
-```
 
 ## Configuration
 
