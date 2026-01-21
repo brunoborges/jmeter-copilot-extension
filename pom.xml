@@ -49,9 +49,9 @@
 
         <!-- GitHub Copilot SDK -->
         <dependency>
-            <groupId>com.github.copilot</groupId>
+            <groupId>io.github.copilot-community-sdk</groupId>
             <artifactId>copilot-sdk</artifactId>
-            <version>0.1.0</version>
+            <version>1.0.0</version>
         </dependency>
 
         <!-- Markdown rendering -->

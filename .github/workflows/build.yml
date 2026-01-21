@@ -21,13 +21,6 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    - name: Install Copilot SDK
-      run: |
-        # Clone and install Copilot SDK (until it's published to Maven Central)
-        git clone https://github.com/brunoborges/copilot-sdk.git /tmp/copilot-sdk
-        cd /tmp/copilot-sdk/java
-        mvn install -DskipTests -q
-
     - name: Build with Maven
       run: xvfb-run --auto-servernum mvn -B clean verify --file pom.xml
 

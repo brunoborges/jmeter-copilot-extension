@@ -22,7 +22,7 @@ An Apache JMeter plugin that provides a GitHub Copilot Chat experience for gener
 
 ### Quick Install (Recommended)
 
-Download the latest release and install it to your JMeter installation with a single command:
+Download the latest release and install it to your JMeter installation with a single command (`JMETER_HOME` should point to your JMeter installation):
 
 ```bash
 curl -sL $(curl -s https://api.github.com/repos/brunoborges/jmeter-copilot/releases/latest | grep "browser_download_url.*jar" | cut -d '"' -f 4) -o $JMETER_HOME/lib/ext/jmeter-copilot-plugin.jar

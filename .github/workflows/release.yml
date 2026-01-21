@@ -37,13 +37,6 @@ jobs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
 
-    - name: Install Copilot SDK
-      run: |
-        # Clone and install Copilot SDK (until it's published to Maven Central)
-        git clone https://github.com/brunoborges/copilot-sdk.git /tmp/copilot-sdk
-        cd /tmp/copilot-sdk/java
-        mvn install -DskipTests -q
-
     - name: Prepare Release
       run: |
         mvn -B release:prepare \
