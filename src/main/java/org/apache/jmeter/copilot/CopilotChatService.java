@@ -26,7 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.github.copilot.sdk.CopilotClient;
-import com.github.copilot.sdk.CopilotModel;
 import com.github.copilot.sdk.CopilotSession;
 import com.github.copilot.sdk.events.AbstractSessionEvent;
 import com.github.copilot.sdk.events.AssistantMessageDeltaEvent;
@@ -80,7 +79,7 @@ public class CopilotChatService implements AutoCloseable {
     private Consumer<String> streamingHandler;
     private Consumer<ChatMessage> messageHandler;
     private Closeable eventSubscription;
-    private CopilotModel model = CopilotModel.CLAUDE_SONNET_4_5; // Default model
+    private String model = "claude-sonnet-4"; // Default model
 
     /**
      * Creates a new CopilotChatService with the default CopilotClient.
@@ -116,7 +115,7 @@ public class CopilotChatService implements AutoCloseable {
     private CompletableFuture<CopilotSession> createSession() {
         SessionConfig config = new SessionConfig()
             .setStreaming(true)
-            .setModel(model.getValue())
+            .setModel(model)
             .setSystemMessage(new com.github.copilot.sdk.json.SystemMessageConfig()
                 .setMode(com.github.copilot.sdk.SystemMessageMode.APPEND)
                 .setContent(JMETER_SYSTEM_PROMPT));
@@ -128,28 +127,37 @@ public class CopilotChatService implements AutoCloseable {
      * Sets the AI model to use for the session.
      * Must be called before connect() to take effect.
      *
-     * @param model The CopilotModel to use
+     * @param model The model name to use
      */
-    public void setModel(CopilotModel model) {
+    public void setModel(String model) {
         this.model = model;
     }
 
     /**
-     * Returns the currently configured AI model.
+     * Returns the currently configured AI model name.
      *
-     * @return The CopilotModel
+     * @return The model name
      */
-    public CopilotModel getModel() {
+    public String getModel() {
         return model;
     }
 
     /**
-     * Returns all available AI models.
+     * Returns all available AI models from the Copilot API.
      *
-     * @return Array of all CopilotModel values
+     * @return List of available model names
      */
-    public static CopilotModel[] getAvailableModels() {
-        return CopilotModel.values();
+    public java.util.List<String> getAvailableModels() {
+        try {
+            return client.listModels()
+                .join()
+                .stream()
+                .map(modelInfo -> modelInfo.getId())
+                .toList();
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "Failed to fetch models from API, using default", e);
+            return java.util.List.of("claude-sonnet-4", "gpt-4.1");
+        }
     }
 
     private void subscribeToEvents() {

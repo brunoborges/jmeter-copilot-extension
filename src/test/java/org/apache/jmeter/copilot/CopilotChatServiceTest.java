@@ -39,10 +39,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.github.copilot.sdk.CopilotClient;
-import com.github.copilot.sdk.CopilotModel;
 import com.github.copilot.sdk.CopilotSession;
-import com.github.copilot.sdk.events.AssistantMessageEvent;
 import com.github.copilot.sdk.json.MessageOptions;
+import com.github.copilot.sdk.json.ModelInfo;
 import com.github.copilot.sdk.json.SessionConfig;
 
 /**
@@ -215,23 +214,29 @@ class CopilotChatServiceTest {
     @Test
     @DisplayName("should have default model set")
     void shouldHaveDefaultModelSet() {
-        assertThat(service.getModel()).isEqualTo(CopilotModel.CLAUDE_SONNET_4_5);
+        assertThat(service.getModel()).isEqualTo("claude-sonnet-4");
     }
 
     @Test
     @DisplayName("should allow setting custom model")
     void shouldAllowSettingCustomModel() {
-        service.setModel(CopilotModel.GPT_4_1);
+        service.setModel("gpt-4.1");
 
-        assertThat(service.getModel()).isEqualTo(CopilotModel.GPT_4_1);
+        assertThat(service.getModel()).isEqualTo("gpt-4.1");
     }
 
     @Test
     @DisplayName("should provide list of available models")
     void shouldProvideListOfAvailableModels() {
-        assertThat(CopilotChatService.getAvailableModels())
+        ModelInfo model1 = new ModelInfo().setId("claude-sonnet-4");
+        ModelInfo model2 = new ModelInfo().setId("gpt-4.1");
+        ModelInfo model3 = new ModelInfo().setId("o3-mini");
+        when(mockClient.listModels()).thenReturn(
+            CompletableFuture.completedFuture(java.util.List.of(model1, model2, model3)));
+        
+        assertThat(service.getAvailableModels())
             .isNotNull()
             .isNotEmpty()
-            .containsExactly(CopilotModel.values());
+            .containsExactly("claude-sonnet-4", "gpt-4.1", "o3-mini");
     }
 }

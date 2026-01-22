@@ -55,8 +55,6 @@ import org.apache.jmeter.gui.GuiPackage;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.collections.HashTree;
 
-import com.github.copilot.sdk.CopilotModel;
-
 /**
  * The main Copilot Chat panel that integrates into JMeter's UI.
  * Provides a chat interface for users to describe test plans and
@@ -81,7 +79,7 @@ public class CopilotChatPanel extends JPanel {
     private JButton showXmlButton;
     private JLabel statusLabel;
     private JScrollPane messagesScrollPane;
-    private JComboBox<CopilotModel> modelSelector;
+    private JComboBox<String> modelSelector;
 
     // State
     private final AtomicBoolean isProcessing = new AtomicBoolean(false);
@@ -151,11 +149,11 @@ public class CopilotChatPanel extends JPanel {
         JLabel modelLabel = new JLabel("Model:");
         centerPanel.add(modelLabel);
 
-        modelSelector = new JComboBox<>(CopilotChatService.getAvailableModels());
+        modelSelector = new JComboBox<>(chatService.getAvailableModels().toArray(new String[0]));
         modelSelector.setSelectedItem(chatService.getModel());
         modelSelector.setToolTipText("Select AI model");
         modelSelector.addActionListener(e -> {
-            CopilotModel selectedModel = (CopilotModel) modelSelector.getSelectedItem();
+            String selectedModel = (String) modelSelector.getSelectedItem();
             if (selectedModel != null) {
                 chatService.setModel(selectedModel);
             }
