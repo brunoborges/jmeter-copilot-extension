@@ -198,7 +198,7 @@
                         <executions>
                             <execution>
                                 <id>copy-to-jmeter</id>
-                                <phase>install</phase>
+                                <phase>package</phase>
                                 <goals>
                                     <goal>run</goal>
                                 </goals>
