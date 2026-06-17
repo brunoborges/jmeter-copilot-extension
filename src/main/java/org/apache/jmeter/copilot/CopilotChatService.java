@@ -25,14 +25,17 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.github.copilot.sdk.CopilotClient;
-import com.github.copilot.sdk.CopilotSession;
-import com.github.copilot.sdk.generated.AssistantMessageDeltaEvent;
-import com.github.copilot.sdk.generated.AssistantMessageEvent;
-import com.github.copilot.sdk.generated.SessionErrorEvent;
-import com.github.copilot.sdk.generated.SessionEvent;
-import com.github.copilot.sdk.json.MessageOptions;
-import com.github.copilot.sdk.json.SessionConfig;
+import com.github.copilot.CopilotClient;
+import com.github.copilot.CopilotSession;
+import com.github.copilot.SystemMessageMode;
+import com.github.copilot.generated.AssistantMessageDeltaEvent;
+import com.github.copilot.generated.AssistantMessageEvent;
+import com.github.copilot.generated.SessionErrorEvent;
+import com.github.copilot.generated.SessionEvent;
+import com.github.copilot.rpc.MessageOptions;
+import com.github.copilot.rpc.PermissionHandler;
+import com.github.copilot.rpc.SessionConfig;
+import com.github.copilot.rpc.SystemMessageConfig;
 
 /**
  * Service that wraps the Copilot SDK to provide chat functionality
@@ -103,12 +106,20 @@ public class CopilotChatService implements AutoCloseable {
      * @return CompletableFuture that completes when connected
      */
     public CompletableFuture<Void> connect() {
+        closeSessionResources();
+        connected.set(false);
         return client.start()
             .thenCompose(v -> createSession())
             .thenAccept(s -> {
                 this.session = s;
                 connected.set(true);
                 subscribeToEvents();
+            })
+            .whenComplete((result, ex) -> {
+                if (ex != null) {
+                    closeSessionResources();
+                    connected.set(false);
+                }
             });
     }
 
@@ -116,9 +127,9 @@ public class CopilotChatService implements AutoCloseable {
         SessionConfig config = new SessionConfig()
             .setStreaming(true)
             .setModel(model)
-            .setOnPermissionRequest(com.github.copilot.sdk.json.PermissionHandler.APPROVE_ALL)
-            .setSystemMessage(new com.github.copilot.sdk.json.SystemMessageConfig()
-                .setMode(com.github.copilot.sdk.SystemMessageMode.APPEND)
+            .setOnPermissionRequest(PermissionHandler.APPROVE_ALL)
+            .setSystemMessage(new SystemMessageConfig()
+                .setMode(SystemMessageMode.APPEND)
                 .setContent(JMETER_SYSTEM_PROMPT));
 
         return client.createSession(config);
@@ -132,6 +143,21 @@ public class CopilotChatService implements AutoCloseable {
      */
     public void setModel(String model) {
         this.model = model;
+    }
+
+    /**
+     * Sets the AI model and applies it to the active session when connected.
+     * This does not create a new session.
+     *
+     * @param model The model name to use
+     * @return CompletableFuture that completes when the active session model is updated
+     */
+    public CompletableFuture<Void> setModelOnActiveSession(String model) {
+        this.model = model;
+        if (!isConnected()) {
+            return CompletableFuture.completedFuture(null);
+        }
+        return session.setModel(model);
     }
 
     /**
@@ -268,17 +294,7 @@ public class CopilotChatService implements AutoCloseable {
     public CompletableFuture<Void> clearConversation() {
         conversationHistory.clear();
 
-        if (session != null) {
-            try {
-                if (eventSubscription != null) {
-                    eventSubscription.close();
-                }
-                session.close();
-            } catch (Exception e) {
-                LOG.log(Level.FINE, "Error closing session", e);
-            }
-            session = null;
-        }
+        closeSessionResources();
 
         // Only create a new session if we're connected
         if (connected.get()) {
@@ -300,7 +316,7 @@ public class CopilotChatService implements AutoCloseable {
      * Returns whether the service is connected.
      */
     public boolean isConnected() {
-        return connected.get();
+        return connected.get() && session != null;
     }
 
     /**
@@ -316,12 +332,23 @@ public class CopilotChatService implements AutoCloseable {
     @Override
     public void close() {
         connected.set(false);
+        closeSessionResources();
 
+        try {
+            client.close();
+        } catch (Exception e) {
+            LOG.log(Level.FINE, "Error closing client", e);
+        }
+    }
+
+    private void closeSessionResources() {
         if (eventSubscription != null) {
             try {
                 eventSubscription.close();
             } catch (IOException e) {
                 LOG.log(Level.FINE, "Error closing event subscription", e);
+            } finally {
+                eventSubscription = null;
             }
         }
 
@@ -330,13 +357,9 @@ public class CopilotChatService implements AutoCloseable {
                 session.close();
             } catch (Exception e) {
                 LOG.log(Level.FINE, "Error closing session", e);
+            } finally {
+                session = null;
             }
-        }
-
-        try {
-            client.close();
-        } catch (Exception e) {
-            LOG.log(Level.FINE, "Error closing client", e);
         }
     }
 }

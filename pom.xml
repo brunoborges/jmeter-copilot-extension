@@ -49,7 +49,7 @@
         <dependency>
             <groupId>com.github</groupId>
             <artifactId>copilot-sdk-java</artifactId>
-            <version>0.3.0-java.2</version>
+            <version>1.0.1</version>
         </dependency>
 
         <!-- Markdown rendering -->

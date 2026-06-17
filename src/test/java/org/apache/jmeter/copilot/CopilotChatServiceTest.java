@@ -38,11 +38,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.github.copilot.sdk.CopilotClient;
-import com.github.copilot.sdk.CopilotSession;
-import com.github.copilot.sdk.json.MessageOptions;
-import com.github.copilot.sdk.json.ModelInfo;
-import com.github.copilot.sdk.json.SessionConfig;
+import com.github.copilot.CopilotClient;
+import com.github.copilot.CopilotSession;
+import com.github.copilot.rpc.MessageOptions;
+import com.github.copilot.rpc.ModelInfo;
+import com.github.copilot.rpc.SessionConfig;
 
 /**
  * Tests for CopilotChatService class.

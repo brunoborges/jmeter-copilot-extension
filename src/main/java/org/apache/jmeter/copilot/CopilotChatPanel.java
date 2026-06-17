@@ -155,7 +155,7 @@ public class CopilotChatPanel extends JPanel {
         modelSelector.addActionListener(e -> {
             String selectedModel = (String) modelSelector.getSelectedItem();
             if (selectedModel != null) {
-                chatService.setModel(selectedModel);
+                handleModelChange(selectedModel);
             }
         });
         centerPanel.add(modelSelector);
@@ -462,6 +462,44 @@ public class CopilotChatPanel extends JPanel {
     public void disconnect() {
         chatService.close();
         updateConnectionStatus(false);
+    }
+
+    private void handleModelChange(String selectedModel) {
+        String previousModel = chatService.getModel();
+        if (selectedModel.equals(previousModel)) {
+            return;
+        }
+        if (isProcessing.get()) {
+            addSystemMessage("Please wait for the current request to finish before changing model.");
+            modelSelector.setSelectedItem(previousModel);
+            return;
+        }
+
+        if (!chatService.isConnected()) {
+            chatService.setModel(selectedModel);
+            addSystemMessage("Model changed to " + selectedModel + ". Reconnecting...");
+            connect();
+            return;
+        }
+
+        chatService.setModelOnActiveSession(selectedModel)
+            .thenRun(() -> SwingUtilities.invokeLater(() ->
+                addSystemMessage("Model changed to " + selectedModel + ".")
+            ))
+            .exceptionally(ex -> {
+                SwingUtilities.invokeLater(() -> {
+                    chatService.setModel(previousModel);
+                    addSystemMessage("Failed to change model: " + ex.getMessage());
+                    if (!chatService.isConnected()) {
+                        chatService.setModel(selectedModel);
+                        addSystemMessage("Connection is invalid. Reconnecting...");
+                        connect();
+                    } else {
+                        modelSelector.setSelectedItem(previousModel);
+                    }
+                });
+                return null;
+            });
     }
 
     private void sendMessage() {
@@ -796,5 +834,9 @@ public class CopilotChatPanel extends JPanel {
      */
     JButton getLoadXmlButton() {
         return loadXmlButton;
+    }
+
+    JComboBox<String> getModelSelector() {
+        return modelSelector;
     }
 }

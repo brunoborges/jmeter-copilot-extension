@@ -19,7 +19,7 @@ package org.apache.jmeter.copilot;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,11 +35,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.github.copilot.sdk.CopilotClient;
-import com.github.copilot.sdk.CopilotSession;
-import com.github.copilot.sdk.json.MessageOptions;
-import com.github.copilot.sdk.json.SessionConfig;
 
 /**
  * Tests for CopilotChatPanel class.
@@ -60,7 +55,10 @@ class CopilotChatPanelTest {
     @BeforeEach
     void setUp() {
         // Create panel with mocked services
+        when(mockChatService.getAvailableModels()).thenReturn(java.util.List.of("claude-sonnet-4", "gpt-4.1"));
+        when(mockChatService.getModel()).thenReturn("claude-sonnet-4");
         when(mockChatService.getConversationHistory()).thenReturn(new ConversationHistory());
+        when(mockChatService.setModelOnActiveSession(any())).thenReturn(CompletableFuture.completedFuture(null));
         panel = new CopilotChatPanel(mockChatService, mockXmlParser);
     }
 
@@ -154,5 +152,27 @@ class CopilotChatPanelTest {
     void shouldHavePlaceholderTextInInputArea() {
         String text = panel.getInputArea().getText();
         assertThat(text).contains("Describe");
+    }
+
+    @Test
+    @DisplayName("should change model without reconnect when connected")
+    void shouldChangeModelWithoutReconnectWhenConnected() {
+        when(mockChatService.isConnected()).thenReturn(true);
+        panel.getModelSelector().setSelectedItem("gpt-4.1");
+
+        verify(mockChatService).setModelOnActiveSession("gpt-4.1");
+        verify(mockChatService, never()).connect();
+    }
+
+    @Test
+    @DisplayName("should reconnect when model changes while disconnected")
+    void shouldReconnectWhenModelChangesWhileDisconnected() {
+        when(mockChatService.isConnected()).thenReturn(false);
+        when(mockChatService.connect()).thenReturn(CompletableFuture.completedFuture(null));
+        panel.getModelSelector().setSelectedItem("gpt-4.1");
+
+        verify(mockChatService).setModel("gpt-4.1");
+        verify(mockChatService).connect();
+        verify(mockChatService, never()).setModelOnActiveSession(any());
     }
 }
